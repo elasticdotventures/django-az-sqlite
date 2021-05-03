@@ -1,6 +1,14 @@
 # django-az-sqlite
 
-CURRENTLY IN DEVELOPMENT. forked from FlipperPA/django-s3-sqlite.
+CURRENTLY IN DEVELOPMENT. INCOMPLETE.
+forked from FlipperPA/django-s3-sqlite.
+
+
+        # AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
+in your DJANGO settings 
+ "BUCKET"] # should be yourname.blob.core.windows.net/
+
+
 
 
 [![PyPI](https://img.shields.io/pypi/v/django-s3-sqlite.svg)](https://pypi.python.org/pypi/django-s3-sqlite)

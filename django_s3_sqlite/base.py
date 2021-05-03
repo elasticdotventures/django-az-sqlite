@@ -4,8 +4,8 @@ import logging
 from hashlib import md5
 from os import path
 
-import boto3
-import botocore
+from azure.identity import DefaultAzureCredential
+from azure.storage.blob import BlobServiceClient
 from django.db.backends.sqlite3.base import DatabaseWrapper
 
 log = logging.getLogger(__name__)
@@ -46,11 +46,13 @@ class DatabaseWrapper(DatabaseWrapper):
                 # In general the ETag is the md5 of the file, in some cases it's
                 # not, and in that case we will just need to reload the file,
                 # I don't see any other way
-                obj_bytes = self.s3.Object(
-                    self.settings_dict["BUCKET"], self.settings_dict["NAME"],
-                ).get(IfNoneMatch=current_md5,)[
-                    "Body"
-                ]  # Will throw E on 304 or 404
+
+                #obj_bytes = self.s3.Object(
+                #    self.settings_dict["BUCKET"], self.settings_dict["NAME"],
+                #).get(IfNoneMatch=current_md5,)[
+                #    "Body"
+                #]  # Will throw E on 304 or 404
+
 
                 # Remote does not match local. Replace local copy.
                 with open(local_file_path, "wb") as f:
@@ -87,10 +89,23 @@ class DatabaseWrapper(DatabaseWrapper):
 
     def __init__(self, *args, **kwargs):
         super(DatabaseWrapper, self).__init__(*args, **kwargs)
-        signature_version = self.settings_dict.get("SIGNATURE_VERSION", "s3v4")
-        self.s3 = boto3.resource(
-            "s3", config=botocore.client.Config(signature_version=signature_version),
-        )
+        # token_credential = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+        # blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+        # the answer is somewhere here
+        # https://github.com/Azure/azure-sdk-for-python/blob/azure-storage-blob_12.8.1/sdk/storage/azure-storage-blob/samples/blob_samples_hello_world.py
+
+        
+        # DefaultAzureCredential should use:
+        # AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
+        token_credential = DefaultAzureCredential()
+        bucket = self.settings_dict["AZ_BLOB_BUCKET"] # yourname.blob.core.windows.net/
+
+        self.az = BlobServiceClient(account_url=f"https://${self.settings_dict['BUCKET']}", credential=token_credential)
+
+        #signature_version = self.settings_dict.get("SIGNATURE_VERSION", "s3v4")
+        #self.s3 = boto3.resource(
+        #    "s3", config=botocore.client.Config(signature_version=signature_version),
+        #)
         self.db_hash = None
         self.load_remote_db()
 
