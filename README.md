@@ -1,4 +1,7 @@
-# django-s3-sqlite
+# django-az-sqlite
+
+CURRENTLY IN DEVELOPMENT. forked from FlipperPA/django-s3-sqlite.
+
 
 [![PyPI](https://img.shields.io/pypi/v/django-s3-sqlite.svg)](https://pypi.python.org/pypi/django-s3-sqlite)
 
